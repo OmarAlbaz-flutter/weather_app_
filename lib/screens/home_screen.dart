@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:weather_app/cubits/get_weather_cubit/get_weather_cubit.dart';
-import 'package:weather_app/cubits/get_weather_cubit/get_weather_states.dart';
+import 'package:weather_app/cubits/get_weather_cubit/weather_cubit.dart';
+import 'package:weather_app/cubits/get_weather_cubit/weather_states.dart';
 import 'package:weather_app/screens/search_screen.dart';
 import 'package:weather_app/widgets/no_weather_body.dart';
 import 'package:weather_app/widgets/weather_info_body.dart';
@@ -12,7 +12,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Builder(
-      builder: (context) => BlocBuilder<GetWeatherCubit, WeatherState>(
+      builder: (context) => BlocBuilder<WeatherCubit, WeatherState>(
         builder: (context, state) {
           return Scaffold(
             appBar: AppBar(
@@ -49,20 +49,24 @@ class HomeScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: getWeatherGradient(
-                      BlocProvider.of<GetWeatherCubit>(context)
+                      BlocProvider.of<WeatherCubit>(context)
                           .weatherModel
                           ?.weatherCondition),
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                 ),
               ),
-              child: BlocBuilder<GetWeatherCubit, WeatherState>(
+              child: BlocBuilder<WeatherCubit, WeatherState>(
                 builder: (context, state) {
-                  if (state is WeatherInitialState) {
-                    return NoWeatherBody();
-                  } else if (state is WeatherLoadedState) {
+                  if (state is WeatherLoadingState) {
+                    return Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                      ),
+                    );
+                  } else if (state is WeatherSuccessState) {
                     return WeatherInfoBody();
-                  } else {
+                  } else if (state is WeatherFailureState) {
                     return Center(
                       child: Text(
                         "Oops, There was an error!",
@@ -73,6 +77,8 @@ class HomeScreen extends StatelessWidget {
                         ),
                       ),
                     );
+                  } else {
+                    return NoWeatherBody();
                   }
                 },
               ),

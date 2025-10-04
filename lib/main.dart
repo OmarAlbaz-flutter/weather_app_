@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:weather_app/cubits/get_weather_cubit/get_weather_cubit.dart';
-import 'package:weather_app/cubits/get_weather_cubit/get_weather_states.dart';
+import 'package:weather_app/cubits/get_weather_cubit/weather_cubit.dart';
+import 'package:weather_app/cubits/get_weather_cubit/weather_states.dart';
 import 'package:weather_app/screens/home_screen.dart';
 
 void main() {
-  runApp(WeatherApp());
+  runApp(BlocProvider(
+    create: (context) => WeatherCubit(),
+    child: WeatherApp(),
+  ));
 }
 
 class WeatherApp extends StatelessWidget {
@@ -13,28 +16,23 @@ class WeatherApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => GetWeatherCubit(),
-      child: Builder(
-        builder: (context) => BlocBuilder<GetWeatherCubit, WeatherState>(
-          builder: (context, state) {
-            return MaterialApp(
-              theme: ThemeData(
-                useMaterial3: false,
-                colorScheme: ColorScheme.fromSwatch(
-                  primarySwatch: getWeatherColor(
-                    BlocProvider.of<GetWeatherCubit>(context)
-                        .weatherModel
-                        ?.weatherCondition,
-                  ),
-                ),
+    return BlocBuilder<WeatherCubit, WeatherState>(
+      builder: (context, state) {
+        return MaterialApp(
+          theme: ThemeData(
+            useMaterial3: false,
+            colorScheme: ColorScheme.fromSwatch(
+              primarySwatch: getWeatherColor(
+                BlocProvider.of<WeatherCubit>(context)
+                    .weatherModel
+                    ?.weatherCondition,
               ),
-              debugShowCheckedModeBanner: false,
-              home: HomeScreen(),
-            );
-          },
-        ),
-      ),
+            ),
+          ),
+          debugShowCheckedModeBanner: false,
+          home: HomeScreen(),
+        );
+      },
     );
   }
 }
